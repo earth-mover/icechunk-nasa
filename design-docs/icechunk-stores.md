@@ -1,6 +1,6 @@
 # GPM IMERG Icechunk Dataset Design Document
 
-This document describes the structure of the NASA GPM IMERG dataset and the Icechunk datasets will will be creating from this dataset.
+This document describes the structure of the NASA GPM IMERG dataset and the Icechunk datasets we will be creating from this dataset.
 
 Goals:
 - Explore workflows for creating large Icechunk virtual datasets
@@ -16,7 +16,6 @@ Official NASA Website: https://data.nasa.gov/dataset/GPM-IMERG-Final-Precipitati
 
 S3 Bucket: `s3://gesdisc-cumulus-prod-protected/GPM_L3/GPM_3IMERGHH.07/`
 
-`
 
 ### Granules
 
@@ -60,7 +59,7 @@ The dataset begins on Jan. 1, 1998. Through the end of 2024, this amounts to 473
 
 ### Internal File Structure
 
-The files are HDF5-backed NetCDF4 datasets with two groups.
+The files are HDF5-backed NetCDF4 datasets with two groups:
 - `Grid` - this seems to be the primary dataset
 - `Grid/Intermediate` - some other variables. :point_left: _We will be ignoring this group for now._
 
@@ -133,12 +132,12 @@ def fix_ds(ds):
 
 ### Batch-processed virtual dataset of the entire record
 
-This step allows us to probe the scalability of virtual reference generation of storage in Icechunk.
+This step allows us to probe the scalability of virtual reference generation and storage in Icechunk.
 It involves building a single ARCO data cube from the entire 26-year GPM IMERG record.
 The final dataset will have 39,759,552 virtual chunks.
 
-We are currently using `Dask` to parallelize the reading of the files and generation of references. (Full notebook [here](  - https://github.com/earth-mover/icechunk-nasa/blob/main/notebooks/build_virtual_ds_dask.ipynb
-).) The relevant code looks something like this.
+We are currently using `Dask` to parallelize the reading of the files and generation of references. Full notebook [here](https://github.com/earth-mover/icechunk-nasa/blob/main/notebooks/build_virtual_ds_dask.ipynb.
+The relevant code looks something like this:
 
 ```python
 import dask.bag as db
@@ -192,7 +191,7 @@ Ideally, opening the Xarray dataset should _not have any performance characteris
 
 There are several strategies we could explore to mitigate these issues:
 - **Better compression of manifest data.** Our current msgpack format does not use any compression whatsoever. Compressing the manifests will make them faster to download.
-- **Concurrent downloading of manifests.** For a 3 GB manifest, splitting the download over many threads will speed it up a lot. (This optimizationapplies to any file in Icechunk, including chunks.)
+- **Concurrent downloading of manifests.** For a 3 GB manifest, splitting the download over many threads will speed it up a lot. (This optimization applies to any file in Icechunk, including chunks.)
 - **Manifest sharding.** We can't allow manifests to grow without bound. The Icechunk Spec allows multiple manifests. The question is how do we split them up. This question merits a design doc all of its own. But here a couple of ideas:
   - Define maximum manifest size (e.g. 100 MB)
   - Split manifests by arrays
