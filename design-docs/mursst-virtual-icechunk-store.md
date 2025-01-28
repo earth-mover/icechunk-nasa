@@ -2,7 +2,7 @@
 
 This document describes the structure of the NASA MUR SST dataset and the Icechunk datasets we will be creating from this dataset.
 
-Goals:
+## Goals:
 
 - Share workflow for creating an icechunk virtual dataset from the MUR SST dataset.
 - Expose and workaround issues in the underlying data files.
@@ -19,9 +19,7 @@ S3 Bucket: `s3://podaac-ops-cumulus-protected/MUR-JPL-L4-GLOB-v4.1`
 
 ### Granules
 
-There is one NetCDF4 file produced every day. See `helpers.make_url` function to see how files are named.
-
-The dataset begins on June 1, 2002. Through the end of 2024, this amounts to ~8,249 files.
+There is one NetCDF4 file produced every day. The dataset begins on June 1, 2002. Through the end of 2024, this amounts to ~8,249 files.
 
 ### Internal File Structure
 
@@ -44,7 +42,7 @@ The other variables are listed below:
 Most issues encountered relate to variation across files -- and thus variation across the time dimension -- in variables, chunk shape and encoding. Currently, multi-dimensional zarr arrays are expected to have uniformity in these aspects.
 
 1. **Extra variables:** Some files contain the extra variables `dt_1km_data` and `sst_anomaly`. These variables are dropped.
-2. **Different encodings:** The standard encoding for data variables appears to be `[{'id': 'shuffle', 'elementsize': 2}, {'id': 'zlib', 'level': 6}]`. However, in 2003, 2021, and 2022 a few files contain a different encoding. These files are written as native Zarr.
+2. **Different encodings:** The standard encoding for data variables appears to be `[{'id': 'shuffle', 'elementsize': 2}, {'id': 'zlib', 'level': 6}]`. However, in 2003, 2021, and 2022, a few files contain a different encoding. These files are written as native Zarr.
 3. **Different chunk shapes:** Starting in 2023, some files have different chunk shapes.
 
    From 2023-02-24 to 2023-02-28, on 2023-04-22, and 2023-09-04 to 2024-03-23:
@@ -97,6 +95,6 @@ TBD
 
 TBD
 
-### Batch rechunking from virtual to native Icechunk
+### Batch rechunking from virtual to native Zarr, stored in Icechunk
 
 TBD
