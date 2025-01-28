@@ -4,11 +4,10 @@ This document describes the structure of the NASA MUR SST dataset and the Icechu
 
 Goals:
 
-- Explore workflows for creating large Icechunk virtual datasets
-- Expose and workaround issues in the underlying data files
-- Expose and resolve scalability bottlenecks withing Icechunk
-- Understand the performance of both writing and reading Icechunk stores
-- Compare virtual store read performance with rechunked native store read performance
+- Share workflow for creating an icechunk virtual dataset from the MUR SST dataset.
+- Expose and workaround issues in the underlying data files.
+- Understand the performance of both writing and reading Icechunk stores.
+- Compare virtual store read performance with reading from the original files.
 
 ## About the Dataset
 
@@ -42,35 +41,62 @@ The other variables are listed below:
 
 ## Issues with the data and how we plan to overcome them:
 
-1. As mentioned above, some files contain the extra variables `dt_1km_data` and `sst_anomaly` (I believe the started appear in 2014, need to double check this). We will remove these variables from the dataset.
-2. In 2003 and 2021, a few files contain a different encoding. These files are written as native Zarr.
-3. Starting in 2022 and again in 2023, a few days have a different chunk shape. This chunk shape seems to become the default on 2023-09-04. As for the different encoding, we will handle the days in before 2023-09-04 as special cases and write those days as native Zarr. For the days after 2023-09-04, we will create a new virtual dataset. This will become the ongoing dataset for new data.
+Most issues encountered relate to variation across files -- and thus variation across the time dimension -- in variables, chunk shape and encoding. Currently, multi-dimensional zarr arrays are expected to have uniformity in these aspects.
 
-Regarding writing data as native zarr, one limitation in the current implementation is it appears the use of dask is not permitted as it results in `ValueError: store error: cannot write to read-only store`. There appears to be a resolution to this in https://icechunk.io/icechunk-python/examples/dask_write but requires and upgrade to icechunk icechunk-v0.1.0-alpha.8.
+1. **Extra variables:** Some files contain the extra variables `dt_1km_data` and `sst_anomaly`. These variables are dropped.
+2. **Different encodings:** The standard encoding for data variables appears to be `[{'id': 'shuffle', 'elementsize': 2}, {'id': 'zlib', 'level': 6}]`. However, in 2003, 2021, and 2022 a few files contain a different encoding. These files are written as native Zarr.
+3. **Different chunk shapes:** Starting in 2023, some files have different chunk shapes.
+
+   From 2023-02-24 to 2023-02-28, on 2023-04-22, and 2023-09-04 to 2024-03-23:
+
+   - `analysed_sst` and `analysis_error` use a chunk shape `(1, 3600, 7200)`. The original chunk shape was `(1, 1023, 2047)`.
+   - `sea_ice_fraction` and `mask` use a chunk shape `(1, 4500, 9000)`. The original chunk shape was `(1, 1447, 2895)`.
+
+   2024-03-24 to date:
+
+   - `analysed_sst` and `analysis_error` use a chunk shape `(1, 1023, 2047)`. This is the original chunk shape.
+   - `sea_ice_fraction` and `mask` use a chunk shape `(1, 1023, 2047)`. **Note:** This shape has never been used for these variables before.
+
+   Since the different chunk shapes only appear a few times before 2023-09-04, we write those files as native Zarr.
+
+   It is yet to be determined how we will handle the chunk shape changes after 2023-09-04.
 
 ## Overall Approach and Sequencing
 
 We will develop these datasets in the following sequence
 
-- [ ] `IN-PROGRESS` Complete virtual dataset from 2002-06-02 to 2023-09-04.
-- [ ] `TODO` Complete virtual dataset from 2023-09-05 to present day.
-- [ ] `TODO` Incremental appending to the second virtual Icechunk dataset.
-- [ ] `TODO` Batch rechunking from virtual to native Zarr, stored in Icechunk.
+- [x] Complete virtual dataset from 2002-06-02 to 2023-09-03.
+- [x] Demonstrate how to read from the virtual dataset.
+- [ ] Determine how to handle creating a virtual dataset from 2023-09-04 to present day.
+- [ ] Incremental appending to the second virtual Icechunk dataset.
+- [ ] Batch rechunking from virtual to native Zarr, stored in Icechunk.
 
-### Complete virtual dataset from 2002-06-02 to 2023-09-04.
+### Development Environment
 
-See notebooks/mur-sst/write_virtual.ipynb for the code. Year by year, it uses dask to parallelize generation of virtual datasets, writes those datasets to the icechunk store and then uses dask to validate the data by generating a mean over a year for a specific lat,lon degree location from the Icechunk store and using the original files.
+The notebooks in [notebooks/mur-sst](../notebooks/mur-sst) was executed on the [VEDA JupyterHub](https://hub.openveda.cloud) using a custom image (quay.io/developmentseed/veda-optimized-data-delivery-image:latest) maintained in https://github.com/developmentseed/veda-optimized-data-delivery-image.
 
-This work also exposed an issue with `_FillValue` in VirtualiZarr's dmrpp reader: https://github.com/zarr-developers/VirtualiZarr/pull/369.
+> [!NOTE]  
+> The latest version of this image uses a custom branch of [VirtualiZarr](https://github.com/developmentseed/veda-optimized-data-delivery-image/blob/main/Dockerfile#L45).
 
-### Complete virtual dataset from 2023-09-05 to present day.
+> [!WARNING]
+> As icechunk is still in development, it is required that the same version of icechunk is used for writing and reading the virtual dataset. The version used for writing this dataset was `0.1.0-alpha12`.
 
-TODO
+### Writing the virtual dataset from 2002-06-02 to 2023-09-03
+
+See [notebooks/mur-sst/write_virtual-2002-2023.ipynb](../notebooks/mur-sst/write_virtual-2002-2023.ipynb). Year by year, it uses dask to parallelize generation of virtual datasets, writes those datasets to the icechunk store and then uses dask to validate the data by generating a mean over a year for a specific location from the Icechunk store and then doig the same using the original files.
+
+### Reading from the virtual dataset
+
+See [notebooks/mur-sst/read_virtual.ipynb](../notebooks/mur-sst/read_virtual.ipynb). This notebook demonstrates how to read from the virtual dataset using both xarray and Zarr.
+
+### Complete virtual dataset from 2023-09-04 to present day.
+
+TBD
 
 ### Incremental appending to virtual Icechunk dataset
 
-TODO
+TBD
 
 ### Batch rechunking from virtual to native Icechunk
 
-TODO
+TBD
