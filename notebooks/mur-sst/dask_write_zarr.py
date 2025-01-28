@@ -9,7 +9,7 @@ from dask.distributed import Client
 import numpy as np
 from dataclasses import dataclass
 from typing import cast
-# Adapted from https://icechunk.io/icechunk-python/examples/dask_write/#icechunk.Conflict.path
+# Adapted from https://icechunk.io/icechunk-python/examples/dask_write/
 
 @dataclass
 class Task:
