@@ -65,7 +65,7 @@ def list_mur_sst_files(start_date: str, end_date: str):
     all_days = pd.date_range(start=start_date, end=end_date, freq="1D")
     return [make_url(d) for d in all_days]
 
-def find_or_create_icechunk_repo(store_name: str = None, store_type: str = 's3', overwrite = True):
+def find_or_create_icechunk_repo(bucket: str = 'nasa-veda-scratch', store_name: str = None, store_type: str = 's3', overwrite = True):
     # need to rewrite this for updated icechunk
     if store_type == "local":
         directory_path = f"./{store_name}"
@@ -87,7 +87,7 @@ def find_or_create_icechunk_repo(store_name: str = None, store_type: str = 's3',
         creds = credentials.get_frozen_credentials()
         # Note: Storage.new_s3 will erase storage
         storage_config = icechunk.s3_storage(
-            bucket='nasa-veda-scratch',
+            bucket=bucket,
             prefix=f"icechunk/{store_name}",
             region='us-west-2',
             access_key_id=creds.access_key,
