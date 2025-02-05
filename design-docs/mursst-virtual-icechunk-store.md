@@ -10,7 +10,7 @@ Future work includes handling post-2023-09-04 chunk shape changes, incremental u
 
 ## Introduction: Goals and Dataset Description
 
-This document describes the structure of the NASA MUR SST dataset and the [Icechunk](https://icechunk.io) datasets we are creating from this dataset.
+This document describes the structure of the NASA MUR SST dataset and the virtual [Icechunk](https://icechunk.io) dataset created from it. In the future, we plan to create a native Zarr version of this dataset as well, to optimized for time series generation.
 
 ### Goals:
 
