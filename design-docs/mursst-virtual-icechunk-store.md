@@ -4,7 +4,7 @@
 
 We created a virtual Icechunk dataset for the MUR SST dataset, enabling efficient cloud-based access while handling inconsistencies in variables, encoding, and chunking.
 
-The workflow now allows fast dataset recreation estimated at ~107 minutes at a cost of ~$1.80. Performance testing shows time series extraction of 77M points in 36 seconds using Zarr-Python on a VEDA JupyterHub instance.
+The workflow now allows fast dataset recreation, detailed in the [Time and cost of writing the virtual dataset](#time-and-cost-of-writing-the-virtual-dataset) section. Performance testing shows time series extraction of 77M points in 36 seconds using Zarr-Python on a VEDA JupyterHub instance.
 
 Future work includes handling post-2023-09-04 chunk shape changes, incremental updates, and batch rechunking to native Zarr.
 
