@@ -145,7 +145,7 @@ Note, this test was run in us-west-2 using a VEDA JupyterHub instance with 60GB 
 
 ### Complete virtual dataset from 2023-09-04 to present day.
 
-A current limitation of the Zarr specification and its implementations is array data must all have the same chunk shape, dimensions, and encodings. Ideally, we would like to implement a variable array encoding solution in Zarr. This would allow arrays with different compression algorithms and chunk shapes to be accessed as a single array.
+A current limitation of the Zarr specification and its implementations is array data must all have the same chunk shape, dimensions, and encodings. Ideally, the Zarr developer community would like to implement a variable array encoding solution in Zarr. This would allow arrays with different compression algorithms and chunk shapes to be accessed as a single array. See [Zarr extension for stacked / concatenated virtual views #288](https://github.com/zarr-developers/zarr-specs/issues/288) to learn more.
 
 In lieu of a solution for concatenating arrays with different encodings and chunk shapes, there are two options:
 
