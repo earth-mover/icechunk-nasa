@@ -113,6 +113,8 @@ The notebooks in [notebooks/mur-sst](../notebooks/mur-sst) was executed on the [
 
 See [notebooks/mur-sst/write_virtual-2002-2023.ipynb](../notebooks/mur-sst/write_virtual-2002-2023.ipynb). Year by year, it uses dask to parallelize generation of virtual datasets, writes those datasets to the icechunk store and then uses dask to validate the data by generating a mean over a year for a specific location from the Icechunk store and then doing the same using the original files.
 
+Note we plan to investigate different parallelization approaches in the future, with an eye for ones that are better suited for running outside of the Jupyter Hub environment. This will reduce the need to babysit and facilitate scaling and monitoring for even faster regeneration and trouble-shooting.
+
 ### Time and cost of writing the virtual dataset
 
 The maximum development time and cost is estimated using the AWS Cost Explorer. The estimated development cost was at most $223, based on an r5.4xlarge instance usage during the period of development. However, since user-specific costs aren't tracked, the actual cost is likely lower. The developer estimates spending 50 hours, which translates to approximately $50. This time includes finding and addressing issues with the data.
