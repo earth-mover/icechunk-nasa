@@ -88,8 +88,7 @@ It is yet to be determined how we will handle the chunk shape changes after 2023
 | 2022-11-09               | Encoding differs from standard | Written as native Zarr                     |
 | 2023-02-24 to 2023-02-28 | Chunk shape change             | Written as native Zarr                     |
 | 2023-04-22               | Chunk shape change             | Written as native Zarr                     |
-| 2023-09-04 to 2024-03-23 | Chunk shape change             | TBD (potentially separate virtual dataset) |
-| 2024-03-24 to present    | Chunk shape change             | TBD (potentially separate virtual dataset) |
+| 2023-09-04 to present    | Chunk shape change             | TBD (potentially separate virtual dataset) |
 
 ---
 
