@@ -83,8 +83,7 @@ It is yet to be determined how we will handle the chunk shape changes after 2023
 | ------------------------ | ------------------------------ | ------------------------------------------ |
 | 2002-09-11               | Encoding differs from standard | Written as native Zarr                     |
 | 2021-02-20 to 2021-02-21 | Encoding differs from standard | Written as native Zarr                     |
-| 2021-12-24 to 2021-12-31 | Encoding differs from standard | Written as native Zarr                     |
-| 2022-01-01 to 2022-01-26 | Encoding differs from standard | Written as native Zarr                     |
+| 2021-12-24 to 2022-01-26 | Encoding differs from standard | Written as native Zarr                     |
 | 2022-11-09               | Encoding differs from standard | Written as native Zarr                     |
 | 2023-02-24 to 2023-02-28 | Chunk shape change             | Written as native Zarr                     |
 | 2023-04-22               | Chunk shape change             | Written as native Zarr                     |
