@@ -6,7 +6,11 @@ import xarray as xr
 from rich.live import Live
 from rich.panel import Panel
 from rich.console import Console, Group
+from rich.jupyter import JupyterMixin
+from rich.ansi import AnsiDecoder
 from time import perf_counter, sleep
+import plotext as plt
+
 
 console = Console()
 
@@ -51,6 +55,33 @@ def get_dataset():
     return ds
 
 
+class plotextMixin(JupyterMixin):
+
+    def make_plot(self):
+        plt.clf()
+        x = self.ds.time.values
+        y = self.ds.precipitation[:, 0, 0].values
+        if len(x) > 40:
+            x = x[-40:]
+            y = y[-40:]
+        plt.plot(x, y, color="green")        
+        plt.plotsize(self.width, self.height)
+        plt.theme('clear')
+        return plt.build()
+    
+    def __init__(self, ds, title = ""):
+        self.decoder = AnsiDecoder()
+        self.ds = ds
+        self.title = title
+
+    def __rich_console__(self, console, options):
+        self.width = options.max_width or console.width
+        self.height = 10
+        canvas = self.make_plot()
+        self.rich_canvas = Group(*self.decoder.decode(canvas))
+        yield self.rich_canvas
+
+
 def main():
 
     def generate_group(n):
@@ -60,7 +91,8 @@ def main():
         g = Group(
             Panel("[green] Reader polling"),
             f"   [yellow]n={n:5d}[/]    {delta_t:.3f} s",
-            Panel(str(ds))
+            Panel(str(ds)),
+            plotextMixin(ds)
         )
         n += 1
         return g
