@@ -29,7 +29,7 @@ S3 Bucket: `s3://podaac-ops-cumulus-protected/MUR-JPL-L4-GLOB-v4.1`
 
 ### Granules
 
-There is one NetCDF4 file produced every day. The dataset begins on June 30, 2002. As of March 10, 2025, the collection is comprised of 8,318 files.
+There is one NetCDF4 file produced every day. The dataset begins on June 1st, 2002. As of March 10, 2025, the collection is comprised of 8,318 files.
 
 ### Internal File Structure
 
