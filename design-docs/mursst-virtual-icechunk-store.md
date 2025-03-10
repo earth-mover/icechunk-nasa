@@ -29,7 +29,7 @@ S3 Bucket: `s3://podaac-ops-cumulus-protected/MUR-JPL-L4-GLOB-v4.1`
 
 ### Granules
 
-There is one NetCDF4 file produced every day. The dataset begins on June 1, 2002. Through the end of 2024, this amounts to ~8,249 files.
+There is one NetCDF4 file produced every day. The dataset begins on June 30, 2002. As of March 10, 2025, the collection is comprised of 8,318 files.
 
 ### Internal File Structure
 
@@ -61,8 +61,6 @@ The following tables describe the inconsistencies in the dataset, including **ex
 | **Encoding Differences** | 2003, 2021, and 2022 (specific dates below)                        | Standard encoding: `shuffle (elementsize=2)`, `zlib (level=6)`. Some files deviate from this standard and must be written as native Zarr. |
 | **Chunk Shape Changes**  | Various periods starting in 2023 (specific dates below) to present | Different chunk shapes appear in some files                                                                                               |
 
-Exact encoding differences are detailed in [notebooks/mur-sst/write_virtual-2002-2023.ipynb](../notebooks/mur-sst/write_virtual-2002-2023.ipynb).
-
 ---
 
 #### Chunk Shape Comparison
@@ -87,24 +85,24 @@ It is yet to be determined how we will handle the chunk shape changes after 2023
 | 2022-11-09               | Encoding differs from standard | Written as native Zarr                     |
 | 2023-02-24 to 2023-02-28 | Chunk shape change             | Written as native Zarr                     |
 | 2023-04-22               | Chunk shape change             | Written as native Zarr                     |
-| 2023-09-04 to present    | Chunk shape change             | TBD (potentially separate virtual dataset) |
+| 2023-09-04 to present    | Chunk shape change             | TBD                                        |
 
 ---
 
 ## Implementation Approach
 
-- [x] Establish a [development environment](#development-environment).
+- [x] Establish a development environment for icechunk dataset generation.
 - [x] [Complete virtual dataset from 2002-06-02 to 2023-09-03](#writing-the-virtual-dataset).
 - [x] Demonstrate how to read and [performance of the virtual dataset](#reading-from-and-performance-of-the-virtual-dataset).
 - [x] Report on [time and cost to write virtual dataset](#time-and-cost-of-writing-the-virtual-dataset).
 
 ### Writing the virtual dataset
 
-See [VirtualiZarr: Lithops Package for MUR SST Data Processing](https://github.com/zarr-developers/VirtualiZarr/tree/main/examples/mursst-icechunk-with-lithops). It uses lithops to parallelize generation of virtual and zarr datasets and writing those datasets to the icechunk store. Additionally, functions for generating a mean for a specific location over a given period, for both the icechunk store and using the original files, can be used for validation of the icechunk store.
+See [VirtualiZarr: Lithops Package for MUR SST Data Processing](https://github.com/zarr-developers/VirtualiZarr/tree/main/examples/mursst-icechunk-with-lithops). In this VirtualiZarr example, [lithops](https://lithops-cloud.github.io/) is used to parallelize generation of virtual and zarr datasets and writing those datasets to the icechunk store. Additionally, functions for generating a mean for a specific location over a given period, for both the icechunk store and using the original files, can be used for validation of the icechunk store.
 
 ### Time and cost of writing the virtual dataset
 
-13 total hours of lambda runtime was used in the generatin of this dataset. This includes periodic validation of the dataset. We can use the number of requests (9,124) and total time to estimate a dataset generation cost of [$1.23 using the AWS cost calculator](https://calculator.aws/#/estimate?id=fdddc3db021e70d7878acefb7579285eb16d2040). Storage cost, which includes some native zarr data, is estimated at [$4.44/year, again using the AWS cost calculator](https://calculator.aws/#/estimate?id=948cf887cd0fcdfa796e1e3cc5f72cc0facf9e4b).
+13 total hours of lambda runtime was used in the generation of this dataset. This includes periodic validation of the dataset. We can use the number of requests (9,124) and total time to estimate a dataset generation cost of [$1.23 using the AWS cost calculator](https://calculator.aws/#/estimate?id=fdddc3db021e70d7878acefb7579285eb16d2040). Storage cost, which includes some native zarr data, is estimated at [$4.44/year, again using the AWS cost calculator](https://calculator.aws/#/estimate?id=948cf887cd0fcdfa796e1e3cc5f72cc0facf9e4b).
 
 ### Reading from and performance of the virtual dataset
 
