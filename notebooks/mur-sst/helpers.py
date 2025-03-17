@@ -12,7 +12,8 @@ from virtualizarr import open_virtual_dataset
 from virtualizarr.zarr import Codec
 import ctypes
 
-base_url = "s3://podaac-ops-cumulus-protected/MUR-JPL-L4-GLOB-v4.1"
+bucket = 'podaac-ops-cumulus-protected'
+base_url = f"s3://{bucket}/MUR-JPL-L4-GLOB-v4.1"
 
 def make_url(date: datetime) -> str:
     """Create an S3 URL for a specific dateime"""
