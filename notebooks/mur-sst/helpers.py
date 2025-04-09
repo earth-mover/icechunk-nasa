@@ -9,7 +9,6 @@ from s3fs import S3FileSystem
 import os
 import shutil
 from virtualizarr import open_virtual_dataset
-from virtualizarr.zarr import Codec
 import ctypes
 
 bucket = 'podaac-ops-cumulus-protected'
