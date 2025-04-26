@@ -67,8 +67,10 @@ The following tables describe the inconsistencies in the dataset, including **ex
 
 | **Variable**                      | **Original Chunk Shape** | **Changed Chunk Shape** | **Affected Periods**                                       |
 | --------------------------------- | ------------------------ | ------------------------|------------------------------------------------------- |
-| `analysed_sst` & `analysis_error` | (1, 1023, 2047)          | (1, 3600, 7200) | 2023-02-24 to 2023-02-28, 2023-04-22, 2023-09-04 to present[^1] |
-| `sea_ice_fraction` & `mask`       | (1, 1447, 2895)          | (1, 4500, 9000) | 2023-02-24 to 2023-02-28, 2023-04-22, 2023-09-04 to present |
+| `analysed_sst` & `analysis_error` | (1, 1023, 2047)          | (1, 3600, 7200) | 2023-02-24 to 2023-02-28, 2023-04-22, 2023-09-04 to 2024-06-01[^1] |
+| `sea_ice_fraction` & `mask`       | (1, 1447, 2895)          | (1, 4500, 9000) | 2023-02-24 to 2023-02-28, 2023-04-22, 2023-09-04 to 2024-06-01 |
+| `analysed_sst` & `analysis_error` | (1, 1023, 2047)          | (1, 1023, 2047) | 2024-06-02 to present |
+| `sea_ice_fraction` & `mask`       | (1, 1447, 2895)          | (1, 1023, 2047) | 2024-06-02 to present |
 
 [^1]: With the exception of 03/24/2024 for `analysed_sst` which also used the chunk shape (1, 1023, 2047).
 
@@ -84,8 +86,9 @@ The following tables describe the inconsistencies in the dataset, including **ex
 | 2022-11-09               | Encoding differs from standard | Written as native Zarr                     |
 | 2023-02-24 to 2023-02-28 | Chunk shape change             | Written as native Zarr                     |
 | 2023-04-22               | Chunk shape change             | Written as native Zarr                     |
-| 2023-09-04 to present    | Chunk shape change             | Written as native Zarr                     |
-| 2024-05-12 to present    | Encoding change                | Written to new data store                  |
+| 2023-09-04 to 2024-06-01 | Chunk shape change             | Written as native Zarr                     |
+| 2024-05-12 to present    | Encoding differs from standard | Written as native Zarr                     |
+| 2024-06-02 to present    | Chunk shape change             | Written to new store                       |
 
 
 ---
