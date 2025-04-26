@@ -57,24 +57,22 @@ The following tables describe the inconsistencies in the dataset, including **ex
 
 | **Issue Type**           | **Affected Time Periods**                                          | **Details**                                                                                                                               |
 | ------------------------ | ------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------- |
-| **Extra Variables**      | Appears in some files randomly                                     | Variables `dt_1km_data` and `sst_anomaly` are dropped because they are not consistently present across all files.                         |
-| **Encoding Differences** | 2003, 2021, and 2022 (specific dates below)                        | Standard encoding: `shuffle (elementsize=2)`, `zlib (level=6)`. Some files deviate from this standard and must be written as native Zarr. |
-| **Chunk Shape Changes**  | Various periods starting in 2023 (specific dates below) to present | Different chunk shapes appear in some files                                                                                               |
+| **Extra Variables**      | Appears starting later in the series  | Variables `dt_1km_data` and `sst_anomaly` are dropped because they are not consistently present across all files.  |
+| **Encoding Differences** | 2003, 2021, 2022, 2024 (specific dates below) | The standard encoding starts as `shuffle (elementsize=2)`, `zlib (level=6)`. Some files deviate from this standard and must be written as native Zarr. |
+| **Chunk Shape Changes**  | Various periods starting in 2023 (specific dates below) to present | Different chunk shapes appear in some files |
 
 ---
 
 #### Chunk Shape Comparison
 
-| **Variable**                      | **Original Chunk Shape** | **Changed Chunk Shape (Affected Periods)**                                       |
-| --------------------------------- | ------------------------ | -------------------------------------------------------------------------------- |
-| `analysed_sst` & `analysis_error` | (1, 1023, 2047)          | (1, 3600, 7200) (2023-02-24 to 2023-02-28, 2023-04-22, 2023-09-04 to present[^1] |
-| `sea_ice_fraction` & `mask`       | (1, 1447, 2895)          | (1, 4500, 9000) (2023-02-24 to 2023-02-28, 2023-04-22, 2023-09-04 to present |
+| **Variable**                      | **Original Chunk Shape** | **Changed Chunk Shape** | **Affected Periods**                                       |
+| --------------------------------- | ------------------------ | ------------------------|------------------------------------------------------- |
+| `analysed_sst` & `analysis_error` | (1, 1023, 2047)          | (1, 3600, 7200) | 2023-02-24 to 2023-02-28, 2023-04-22, 2023-09-04 to present[^1] |
+| `sea_ice_fraction` & `mask`       | (1, 1447, 2895)          | (1, 4500, 9000) | 2023-02-24 to 2023-02-28, 2023-04-22, 2023-09-04 to present |
 
 [^1]: With the exception of 03/24/2024 for `analysed_sst` which also used the chunk shape (1, 1023, 2047).
 
 ---
-
-It is yet to be determined how we will handle the chunk shape changes after 2023-09-04.
 
 #### How these issues are addressed
 
@@ -86,8 +84,8 @@ It is yet to be determined how we will handle the chunk shape changes after 2023
 | 2022-11-09               | Encoding differs from standard | Written as native Zarr                     |
 | 2023-02-24 to 2023-02-28 | Chunk shape change             | Written as native Zarr                     |
 | 2023-04-22               | Chunk shape change             | Written as native Zarr                     |
-| 2023-09-04 to present    | Chunk shape change             | TBD                                        |
-| 2024-05-12 to present    | Encoding change                | TBD                                        |
+| 2023-09-04 to present    | Chunk shape change             | Written as native Zarr                     |
+| 2024-05-12 to present    | Encoding change                | Written to new data store                  |
 
 
 ---
@@ -95,7 +93,7 @@ It is yet to be determined how we will handle the chunk shape changes after 2023
 ## Implementation Approach
 
 - [x] Establish a development environment for icechunk dataset generation.
-- [x] [Complete virtual dataset from 2002-06-02 to 2023-09-03](#writing-the-virtual-dataset).
+- [x] [Complete virtual dataset from 2002-06-02 to 2024-05-11](#writing-the-virtual-dataset).
 - [x] Demonstrate how to read and [performance of the virtual dataset](#reading-from-and-performance-of-the-virtual-dataset).
 - [x] Report on [time and cost to write virtual dataset](#time-and-cost-of-writing-the-virtual-dataset).
 
@@ -115,24 +113,15 @@ Note, this test was run in us-west-2 using a VEDA JupyterHub instance with 60GB 
 
 ## Future work
 
-- [ ] Determine how to handle creating a virtual dataset from 2023-09-04 to present day.
-- [ ] Incremental appending to the most recent virtual Icechunk dataset.
+- [ ] (IN PROGRESS) Create a virtual dataset from 2024-05-12 to present day.
+- [ ] (IN PROGRESS) Incremental appending to the most recent virtual Icechunk dataset.
 - [ ] Batch rechunking from virtual to native Zarr, stored in Icechunk.
 
-### Complete virtual dataset from 2023-09-04 to present day.
+### Additional virtual dataset from 2024-05-12 to present day.
 
 A current limitation of the Zarr specification and its implementations is array data must all have the same chunk shape, dimensions, and encodings. Ideally, the Zarr developer community would like to implement a variable array encoding solution in Zarr. This would allow arrays with different compression algorithms and chunk shapes to be accessed as a single array. See [Zarr extension for stacked / concatenated virtual views #288](https://github.com/zarr-developers/zarr-specs/issues/288) to learn more.
 
-In lieu of a solution for concatenating arrays with different encodings and chunk shapes, there are two options:
-
-1. Create 3 virtual Zarr stores: the one created here plus two more, one for the period 2023-09-04 to 2024-03-23, and then 2024-03-23 to date.
-   - Pros: Less storage and computation time required to create the datasets.
-   - Cons: More complicated user experience to manage three datasets for a complete time series.
-2. Write 2023-09-04 to 2024-03-23 as native Zarr to the existing store and then write 2024-03-24 to date as a new virtual dataset.
-   - Pros: More straightforward user experience to manage the dataset.
-   - Cons: Longer processing time and more storage required.
-
-For simplicity in usage, option 2 seems preferable.
+In lieu of a solution for concatenating arrays with different encodings and chunk shapes, we have written some periods as native zarr to the orignal Zarr store. Starting 05-12-2024 chunk shapes and encodings are consistent to present day, so this will constitute a new virtual dataset with new dates appended using CMR notifications.
 
 However the ideal solution would be to enable concatenation of arrays with different encodings and chunk sizes. With that functionality in place, the existing store could be regenerated without any native Zarr data.
 
