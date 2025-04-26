@@ -67,9 +67,10 @@ The following tables describe the inconsistencies in the dataset, including **ex
 
 | **Variable**                      | **Original Chunk Shape** | **Changed Chunk Shape (Affected Periods)**                                       |
 | --------------------------------- | ------------------------ | -------------------------------------------------------------------------------- |
-| `analysed_sst` & `analysis_error` | (1, 1023, 2047)          | (1, 3600, 7200) (2023-02-24 to 2023-02-28, 2023-04-22, 2023-09-04 to 2024-03-23) |
-| `sea_ice_fraction` & `mask`       | (1, 1447, 2895)          | (1, 4500, 9000) (2023-02-24 to 2023-02-28, 2023-04-22, 2023-09-04 to 2024-03-23) |
-| `sea_ice_fraction` & `mask`       | (1, 1447, 2895)          | (1, 1023, 2047) (2024-03-24 to present)                                          |
+| `analysed_sst` & `analysis_error` | (1, 1023, 2047)          | (1, 3600, 7200) (2023-02-24 to 2023-02-28, 2023-04-22, 2023-09-04 to present[^1] |
+| `sea_ice_fraction` & `mask`       | (1, 1447, 2895)          | (1, 4500, 9000) (2023-02-24 to 2023-02-28, 2023-04-22, 2023-09-04 to present |
+
+[^1]: With the exception of 03/24/2024 for `analysed_sst` which also used the chunk shape (1, 1023, 2047).
 
 ---
 
