@@ -6,7 +6,7 @@ We created a virtual Icechunk dataset for the MUR SST dataset, enabling efficien
 
 The workflow now allows fast dataset recreation, detailed in the [Time and cost of writing the virtual dataset](#time-and-cost-of-writing-the-virtual-dataset) section. Performance testing shows time series extraction of 77M points in 36 seconds using Zarr-Python on a VEDA JupyterHub instance.
 
-Future work includes handling post-2023-09-04 chunk shape changes, incremental updates, and batch rechunking to native Zarr.
+Future work includes incremental updates and batch rechunking to native Zarr.
 
 ## Introduction: Goals and Dataset Description
 
@@ -37,15 +37,20 @@ The files are standard NetCDF4 with 4 data variables across all files, and 2 add
 
 The other variables are listed below:
 
-| name             | dtype   | shape             | chunk shape     | num. chunks |
-| ---------------- | ------- | ----------------- | --------------- | ----------- |
-| time             | int32   | (1,)              | (1,)            | 1           |
-| lon              | float32 | (36000,)          | (36000,)        | 1           |
-| lat              | float32 | (17999,)          | (17999,)        | 1           |
-| analysed_sst     | int32   | (1, 17999, 36000) | (1, 1023, 2047) | 324         |
-| analysis_error   | float32 | (1, 17999, 36000) | (1, 1023, 2047) | 324         |
-| mask             | float32 | (1, 17999, 36000) | (1, 1447, 2895) | 169         |
-| sea_ice_fraction | float32 | (1, 17999, 36000) | (1, 1447, 2895) | 169         |
+| name             | dtype   | shape             | original chunk shape | num. chunks  | 
+| ---------------- | ------- | ----------------- | -------------------- | ----------- |
+| time             | int32   | (1,)              | (1,)                 | 1           |
+| lon              | float32 | (36000,)          | (36000,)             | 1           |
+| lat              | float32 | (17999,)          | (17999,)             | 1           |
+| analysed_sst     | int32   | (1, 17999, 36000) | (1, 1023, 2047)      | 324         |
+| analysis_error   | float32 | (1, 17999, 36000) | (1, 1023, 2047)      | 324         |
+| mask             | float32 | (1, 17999, 36000) | (1, 1447, 2895)      | 169         |
+| sea_ice_fraction | float32 | (1, 17999, 36000) | (1, 1447, 2895)      | 169         |
+
+The standard encodings are:
+
+* `shuffle (elementsize=2), zlib (level=6)` for `analysed_sst` and `analysis_error`, and,
+* `zlib (level=6), shuffle (elementsize=1)` for `mask` and `sea_ice_fraction`.
 
 ## Challenges and Solutions
 
@@ -57,39 +62,16 @@ The following tables describe the inconsistencies in the dataset, including **ex
 
 | **Issue Type**           | **Affected Time Periods**                                          | **Details**                                                                                                                               |
 | ------------------------ | ------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------- |
-| **Extra Variables**      | Appears starting later in the series  | Variables `dt_1km_data` and `sst_anomaly` are dropped because they are not consistently present across all files.  |
-| **Encoding Differences** | 2003, 2021, 2022, 2024 (specific dates below) | The standard encoding starts as `shuffle (elementsize=2)`, `zlib (level=6)`. Some files deviate from this standard and must be written as native Zarr. |
-| **Chunk Shape Changes**  | Various periods starting in 2023 (specific dates below) to present | Different chunk shapes appear in some files |
+| **Extra Variables**      |  Variables `dt_1km_data` and `sst_anomaly` are not in the original files  | Variables `dt_1km_data` and `sst_anomaly` are dropped because they are inconsistently present across all files.  |
+| **Encoding Differences** | See [mursst_assessment.ipynb](../notebooks/mur-sst/mursst_assessment.ipynb) | Some files deviate from the standard encoding and must be written as native Zarr. |
+| **Chunk Shape Changes**  | See [mursst_assessment.ipynb](../notebooks/mur-sst/mursst_assessment.ipynb) | Different chunk shapes appear during varied periods across variables. |
 
----
 
-#### Chunk Shape Comparison
+See [mursst_assessment.ipynb](../notebooks/mur-sst/mursst_assessment.ipynb) for a complete inventory of the variations in chunk shapes and codecs across variables.
 
-| **Variable**                      | **Original Chunk Shape** | **Changed Chunk Shape** | **Affected Periods**                                       |
-| --------------------------------- | ------------------------ | ------------------------|------------------------------------------------------- |
-| `analysed_sst` & `analysis_error` | (1, 1023, 2047)          | (1, 3600, 7200) | 2023-02-24 to 2023-02-28, 2023-04-22, 2023-09-04 to 2024-06-01[^1] |
-| `sea_ice_fraction` & `mask`       | (1, 1447, 2895)          | (1, 4500, 9000) | 2023-02-24 to 2023-02-28, 2023-04-22, 2023-09-04 to 2024-06-01 |
-| `analysed_sst` & `analysis_error` | (1, 1023, 2047)          | (1, 1023, 2047) | 2024-06-02 to present |
-| `sea_ice_fraction` & `mask`       | (1, 1447, 2895)          | (1, 1023, 2047) | 2024-06-02 to present |
+For any time periods where the data files deviate from the original chunk shape OR the original encoding of that variable, data for those dates are written as native Zarr.
 
-[^1]: With the exception of 03/24/2024 for `analysed_sst` which also used the chunk shape (1, 1023, 2047).
-
----
-
-#### How these issues are addressed
-
-| **Time Period**          | **Reason for Issue**           | **Resolution**                             |
-| ------------------------ | ------------------------------ | ------------------------------------------ |
-| 2002-09-11               | Encoding differs from standard | Written as native Zarr                     |
-| 2021-02-20 to 2021-02-21 | Encoding differs from standard | Written as native Zarr                     |
-| 2021-12-24 to 2022-01-26 | Encoding differs from standard | Written as native Zarr                     |
-| 2022-11-09               | Encoding differs from standard | Written as native Zarr                     |
-| 2023-02-24 to 2023-02-28 | Chunk shape change             | Written as native Zarr                     |
-| 2023-04-22               | Chunk shape change             | Written as native Zarr                     |
-| 2023-09-04 to 2024-06-01 | Chunk shape change             | Written as native Zarr                     |
-| 2024-05-12 to present    | Encoding differs from standard | Written as native Zarr                     |
-| 2024-06-02 to present    | Chunk shape change             | Written to new store                       |
-
+Because changes seem to be consistent again starting 05-12-2024, we will create a second virtual store starting on that date that can be appended to in an ongoing fashion.
 
 ---
 
@@ -120,7 +102,7 @@ Note, this test was run in us-west-2 using a VEDA JupyterHub instance with 60GB 
 - [ ] (IN PROGRESS) Incremental appending to the most recent virtual Icechunk dataset.
 - [ ] Batch rechunking from virtual to native Zarr, stored in Icechunk.
 
-### Additional virtual dataset from 2024-05-12 to present day.
+### Additional virtual dataset from 2024-05-12 to present day
 
 A current limitation of the Zarr specification and its implementations is array data must all have the same chunk shape, dimensions, and encodings. Ideally, the Zarr developer community would like to implement a variable array encoding solution in Zarr. This would allow arrays with different compression algorithms and chunk shapes to be accessed as a single array. See [Zarr extension for stacked / concatenated virtual views #288](https://github.com/zarr-developers/zarr-specs/issues/288) to learn more.
 
@@ -130,7 +112,7 @@ However the ideal solution would be to enable concatenation of arrays with diffe
 
 ### Incremental appending to virtual Icechunk dataset
 
-TBD
+IN PROGRESS
 
 ### Batch rechunking from virtual to native Zarr, stored in Icechunk
 
