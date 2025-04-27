@@ -71,14 +71,14 @@ See [mursst_assessment.ipynb](../notebooks/mur-sst/mursst_assessment.ipynb) for 
 
 For any time periods where the data files deviate from the original chunk shape OR the original encoding of that variable, data for those dates are written as native Zarr.
 
-Because changes seem to be consistent again starting 05-12-2024, we will create a second virtual store starting on that date that can be appended to in an ongoing fashion.
+Because changes seem to be consistent again starting 2024-06-02, we will create a second virtual store starting on that date that can be appended to in an ongoing fashion.
 
 ---
 
 ## Implementation Approach
 
 - [x] Establish a development environment for icechunk dataset generation.
-- [x] [Complete virtual dataset from 2002-06-02 to 2024-05-11](#writing-the-virtual-dataset).
+- [x] [Complete initial virtual dataset](#writing-the-virtual-dataset).
 - [x] Demonstrate how to read and [performance of the virtual dataset](#reading-from-and-performance-of-the-virtual-dataset).
 - [x] Report on [time and cost to write virtual dataset](#time-and-cost-of-writing-the-virtual-dataset).
 
@@ -98,15 +98,15 @@ Note, this test was run in us-west-2 using a VEDA JupyterHub instance with 60GB 
 
 ## Future work
 
-- [ ] (IN PROGRESS) Create a virtual dataset from 2024-05-12 to present day.
+- [ ] (IN PROGRESS) Create a virtual dataset from 2024-06-02 to present day.
 - [ ] (IN PROGRESS) Incremental appending to the most recent virtual Icechunk dataset.
 - [ ] Batch rechunking from virtual to native Zarr, stored in Icechunk.
 
-### Additional virtual dataset from 2024-05-12 to present day
+### Additional virtual dataset from 2024-06-02 to present day
 
 A current limitation of the Zarr specification and its implementations is array data must all have the same chunk shape, dimensions, and encodings. Ideally, the Zarr developer community would like to implement a variable array encoding solution in Zarr. This would allow arrays with different compression algorithms and chunk shapes to be accessed as a single array. See [Zarr extension for stacked / concatenated virtual views #288](https://github.com/zarr-developers/zarr-specs/issues/288) to learn more.
 
-In lieu of a solution for concatenating arrays with different encodings and chunk shapes, we have written some periods as native zarr to the orignal Zarr store. Starting 05-12-2024 chunk shapes and encodings are consistent to present day, so this will constitute a new virtual dataset with new dates appended using CMR notifications.
+In lieu of a solution for concatenating arrays with different encodings and chunk shapes, we have written some periods as native zarr to the orignal Zarr store. Starting 2024-06-02 chunk shapes and encodings are consistent to present day, so this will constitute a new virtual dataset with new dates appended using CMR notifications.
 
 However the ideal solution would be to enable concatenation of arrays with different encodings and chunk sizes. With that functionality in place, the existing store could be regenerated without any native Zarr data.
 
