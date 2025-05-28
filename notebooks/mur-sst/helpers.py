@@ -10,6 +10,7 @@ import os
 import shutil
 from virtualizarr import open_virtual_dataset
 import ctypes
+from typing import Optional
 
 bucket = 'podaac-ops-cumulus-protected'
 base_url = f"s3://{bucket}/MUR-JPL-L4-GLOB-v4.1"
@@ -28,3 +29,28 @@ def list_mur_sst_files(start_date: str, end_date: str):
     """
     all_days = pd.date_range(start=start_date, end=end_date, freq="1D")
     return [make_url(d) for d in all_days]
+
+def get_repo(bucket_name: str, store_name: str, ea_creds: Optional[dict] = None):
+    storage = icechunk.s3_storage(
+        bucket=bucket_name,
+        prefix=f"icechunk/{store_name}",
+        anonymous=True
+    )
+
+    config = icechunk.RepositoryConfig.default()
+    config.set_virtual_chunk_container(icechunk.VirtualChunkContainer("s3", "s3://", icechunk.s3_store(region="us-west-2")))
+
+    repo_config = dict(
+        storage=storage,
+        config=config,
+    )
+    if ea_creds:
+        earthdata_credentials = icechunk.containers_credentials(
+            s3=icechunk.s3_credentials(
+                access_key_id=ea_creds['accessKeyId'],
+                secret_access_key=ea_creds['secretAccessKey'],
+                session_token=ea_creds['sessionToken']
+            )
+        )
+        repo_config['virtual_chunk_credentials'] = earthdata_credentials
+    return icechunk.Repository.open(**repo_config)
